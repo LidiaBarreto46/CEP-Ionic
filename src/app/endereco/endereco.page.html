@@ -1,0 +1,227 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-button (click)="voltarHome()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Consulta de Endereço</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="search-container">
+    <ion-segment [(ngModel)]="modoBusca" color="primary" class="search-segment">
+      <ion-segment-button value="cep">
+        <ion-icon name="search-outline"></ion-icon>
+        <ion-label>Buscar por CEP</ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="manual">
+        <ion-icon name="map-outline"></ion-icon>
+        <ion-label>Buscar manualmente</ion-label>
+      </ion-segment-button>
+    </ion-segment>
+
+    <!-- BUSCA POR CEP -->
+    <div *ngIf="modoBusca === 'cep'" class="search-section">
+      <ion-card class="search-card">
+        <ion-card-content>
+          <ion-item class="custom-input">
+            <ion-label position="stacked">CEP</ion-label>
+            <ion-input 
+              [(ngModel)]="cep" 
+              (keydown.enter)="buscarCep()"
+              placeholder="Ex: 12345-678"
+              maxlength="9">
+            </ion-input>
+          </ion-item>
+
+          <ion-button expand="block" (click)="buscarCep()" class="search-button">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Buscar CEP
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card *ngIf="endereco" class="result-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="location-outline" color="primary"></ion-icon>
+            Dados do Endereço
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">CEP:</span>
+                  <span class="value">{{ endereco.cep }}</span>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Logradouro:</span>
+                  <span class="value">{{ endereco.logradouro }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Bairro:</span>
+                  <span class="value">{{ endereco.bairro }}</span>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Cidade:</span>
+                  <span class="value">{{ endereco.localidade }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Estado:</span>
+                  <span class="value">{{ endereco.uf }}</span>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Região:</span>
+                  <span class="value">{{ endereco.regiao }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </div>
+
+    <!-- BUSCA MANUAL -->
+    <div *ngIf="modoBusca === 'manual'" class="search-section">
+      <ion-card class="search-card">
+        <ion-card-content>
+          <ion-item class="custom-input">
+            <ion-label position="stacked">Estado</ion-label>
+            <ion-select [(ngModel)]="estadoSelecionado" (ionChange)="carregarCidades()" placeholder="Selecione o estado">
+              <ion-select-option *ngFor="let estado of estados" [value]="estado.sigla">
+                {{ estado.nome }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="custom-input" *ngIf="cidades.length > 0">
+            <ion-label position="stacked">Cidade</ion-label>
+            <ion-select [(ngModel)]="cidadeSelecionada" placeholder="Selecione a cidade">
+              <ion-select-option *ngFor="let cidade of cidades" [value]="cidade.nome">
+                {{ cidade.nome }}
+              </ion-select-option>
+            </ion-select>
+          </ion-item>
+
+          <ion-item class="custom-input">
+            <ion-label position="stacked">Logradouro</ion-label>
+            <ion-input [(ngModel)]="logradouro" placeholder="Ex: Rua das Flores"></ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input">
+            <ion-label position="stacked">Bairro</ion-label>
+            <ion-input [(ngModel)]="bairro" placeholder="Ex: Centro"></ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input">
+            <ion-label position="stacked">Número</ion-label>
+            <ion-input [(ngModel)]="numero" type="text" placeholder="Ex: 123"></ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input">
+            <ion-label position="stacked">Complemento</ion-label>
+            <ion-input [(ngModel)]="complemento" placeholder="Ex: Apto 101"></ion-input>
+          </ion-item>
+
+          <ion-button expand="block" (click)="buscarCepPorEndereco()" class="search-button">
+            <ion-icon name="search-outline" slot="start"></ion-icon>
+            Buscar CEP
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card *ngIf="cepsEncontrados.length > 1" class="result-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="list-outline" color="primary"></ion-icon>
+            CEPs Encontrados
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-list>
+            <ion-item *ngFor="let cep of cepsEncontrados" button (click)="selecionarCep(cep)" class="cep-item">
+              <ion-icon name="location-outline" slot="start" color="primary"></ion-icon>
+              <ion-label>
+                <h2>{{ cep.cep }}</h2>
+                <p>{{ cep.logradouro }}, {{ cep.bairro }}</p>
+              </ion-label>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <ion-card *ngIf="cepSelecionado" class="result-card">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="checkmark-circle-outline" color="primary"></ion-icon>
+            Endereço Selecionado
+          </ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-grid>
+            <ion-row>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">CEP:</span>
+                  <span class="value">{{ endereco.cep }}</span>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Logradouro:</span>
+                  <span class="value">{{ endereco.logradouro }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Bairro:</span>
+                  <span class="value">{{ endereco.bairro }}</span>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Cidade:</span>
+                  <span class="value">{{ endereco.localidade }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+            <ion-row>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Estado:</span>
+                  <span class="value">{{ endereco.uf }}</span>
+                </div>
+              </ion-col>
+              <ion-col size="6">
+                <div class="info-item">
+                  <span class="label">Região:</span>
+                  <span class="value">{{ endereco.regiao }}</span>
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

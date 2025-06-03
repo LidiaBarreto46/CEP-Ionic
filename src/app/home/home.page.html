@@ -1,0 +1,44 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-title>
+      <ion-icon name="location" class="title-icon"></ion-icon>
+      Consulta de Endereços
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="welcome-container">
+    <h1>Bem-vindo ao Sistema de Consulta de Endereços</h1>
+    <p class="subtitle">Encontre endereços de forma rápida e eficiente</p>
+    
+    <ion-card class="feature-card">
+      <ion-card-header>
+        <ion-card-title>Como usar?</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        <ion-list lines="none">
+          <ion-item>
+            <ion-icon name="search-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h2>Busca por CEP</h2>
+              <p>Encontre endereços a partir do CEP</p>
+            </ion-label>
+          </ion-item>
+          <ion-item>
+            <ion-icon name="map-outline" slot="start" color="primary"></ion-icon>
+            <ion-label>
+              <h2>Busca Manual</h2>
+              <p>Localize CEPs a partir do endereço</p>
+            </ion-label>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-button expand="block" routerLink="/endereco" class="start-button">
+      <ion-icon name="arrow-forward-outline" slot="start"></ion-icon>
+      Iniciar Consulta
+    </ion-button>
+  </div>
+</ion-content>
